@@ -2,7 +2,7 @@
 
 User guide:
 
-1. edit home/"username"/.bashrc or home/"username"/.zshrc (nano .bashrc or nano .zshrc), at the end of the file, add:
+1. edit /home/"username"/.bashrc or /home/"username"/.zshrc (nano .bashrc or nano .zshrc), at the end of the file, add:
 
 EXAM_PATH = "exam_manager.py path route"
 
