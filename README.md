@@ -10,6 +10,7 @@ alias exam_start="python3 $EXAM_PATH start"
 alias exam_grade="python3 $EXAM_PATH grade"
 alias exam_status="python3 $EXAM_PATH status"
 alias exam_reset="python3 $EXAM_PATH reset"
+alias exam_cancel="python3 $EXAM_PATH cancel"
 
 2. open the repository directory.
 3. execute exam_start (if you want to practice an specific subject, execute exam_start 'name_of_subject').
@@ -19,5 +20,7 @@ alias exam_reset="python3 $EXAM_PATH reset"
 If you passed, a SUCCESS message will appear and another subject will be generated in the 'rendu' directory.
 Otherwise, a FAIL message will appear, and you will be stuck some more time with the same subject.
 7. You can remove everything you have done in your actual subject by executing exam_reset.
+8. You cant start another subject before you finish the one you are currently working on, unless you execute exam_cancel.
+exam_cancel will remove everything, so you can execute start again.
 
 PD: This is a practicing tool, im pretty sure it can be done better, but it does its job decently. Any help is welcomed (👍🏻ᴗ _ᴗ)👍🏻
