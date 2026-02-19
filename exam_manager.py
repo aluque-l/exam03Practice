@@ -20,6 +20,7 @@ import time
 
 BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
 SOLUTIONS_DIR = os.path.join(BASE_DIR, "solutions")
+SUBJECTS_DIR  = os.path.join(BASE_DIR, "subjects")
 RENDU_DIR     = os.path.join(BASE_DIR, "rendu")
 STATE_FILE    = os.path.join(BASE_DIR, ".current_ex")
 TMP_DIR       = os.path.join(BASE_DIR, ".tmp")
@@ -138,6 +139,7 @@ EXAMS = {
 def ensure_dirs():
     os.makedirs(TMP_DIR, exist_ok=True)
     os.makedirs(SOLUTIONS_DIR, exist_ok=True)
+    os.makedirs(SUBJECTS_DIR, exist_ok=True)
     os.makedirs(RENDU_DIR, exist_ok=True)
 
 def tmp(name):
@@ -395,10 +397,20 @@ def cmd_setup(specific=None):
         shutil.rmtree(dest)
     os.makedirs(dest)
 
+    # Copia el subject.txt en el directorio de entrega si existe
+    subject_src = os.path.join(SUBJECTS_DIR, f"{ex}.txt")
+    subject_dst = os.path.join(dest, "subject.txt")
+    if os.path.exists(subject_src):
+        shutil.copy(subject_src, subject_dst)
+        subject_status = green("✓ subject.txt copiado")
+    else:
+        subject_status = yellow(f"⚠ no encontrado en subjects/{ex}.txt")
+
     print(f"\n{purple('─' * 50)}")
     print(f"  {bold('NUEVO EJERCICIO:')} {purple(ex)}")
     print(f"  Entrega en      : {dest}/")
     print(f"  Archivos pedidos: {', '.join(conf['files'])}")
+    print(f"  Subject         : {subject_status}")
     print(f"{purple('─' * 50)}\n")
 
 
