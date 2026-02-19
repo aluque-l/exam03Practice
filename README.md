@@ -18,4 +18,6 @@ alias exam_reset="python3 $EXAM_PATH reset"
 6. When you are finished, grade your solution by executing exam_grade.
 If you passed, a SUCCESS message will appear and another subject will be generated in the 'rendu' directory.
 Otherwise, a FAIL message will appear, and you will be stuck some more time with the same subject.
-7. You can remove everything you have done in your actual subject by executing exam_reset. 
+7. You can remove everything you have done in your actual subject by executing exam_reset.
+
+PD: This is a practicing tool, im pretty sure it can be done better, but it does its job decently. Any help is welcomed (👍🏻ᴗ _ᴗ)👍🏻
