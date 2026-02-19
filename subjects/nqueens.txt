@@ -1,0 +1,25 @@
+Assignement name : n_queens
+Expected files : *.c *.h
+Allowed functions : atoi, fprintf, write, calloc, malloc, free, realloc, stdout, stderr
+-------------------------------------------------------------------------
+
+Escribe un programa que imprima todas las soluciones al problema de las n reinas
+para un n dado como argumento.
+No probaremos con valores negativos.
+El orden de las soluciones no es importante.
+
+Mostrarás las soluciones en el siguiente formato:
+<p1> <p2> <p3> ... \n
+donde pn son los índices de línea de la reina en cada columna, empezando por 0.
+
+Por ejemplo, esto debería funcionar:
+$> ./n_queens 2 | cat -e
+
+$> ./n_queens 4 | cat -e
+1 3 0 2$
+2 0 3 1$
+
+$> ./n_queens 7 | cat -e
+0 2 4 6 1 3 5$
+0 3 6 2 5 1 4$
+etc...

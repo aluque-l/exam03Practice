@@ -1,0 +1,38 @@
+Assignment name : broken_GNL
+Expected files  : get_next_line.c get_next_line.h
+Allowed functions : read, free, malloc
+--------------------------------------------------------------------------------
+Repara o implementa la función get_next_line en el archivo get_next_line.c. El prototipo de la función debe ser el siguiente:
+
+char *get_next_line(int fd);
+
+Es posible que necesites reparar o implementar otras funciones auxiliares para el correcto funcionamiento de la principal.
+
+Descripción de la función
+Tu función debe devolver la línea leída de un descriptor de archivo (fd) pasado como parámetro.
+
+Definición de línea: Se define como una sucesión de 0 a n caracteres que termina con un salto de línea (\n, código ASCII 0x0a) o con el final del archivo (EOF).
+
+Formato de retorno: La línea devuelta debe incluir el carácter \n si este se encontraba al final de la lectura.
+
+Gestión de EOF: Al llegar al final del archivo, debes almacenar el contenido restante en un char * y devolverlo. Si el búfer está vacío, la función debe devolver NULL.
+
+Gestión de errores: En caso de error, la función debe devolver NULL.
+
+Memoria: Si la función no devuelve NULL, el puntero resultante debe ser liberable (asignado dinámicamente).
+
+Restricciones y Especificaciones Técnicas
+Compilación: El programa se compilará con el flag -D BUFFER_SIZE=xx, que debe utilizarse como el tamaño del búfer en las llamadas a la función read.
+
+Fugas de memoria: La función debe estar libre de memory leaks.
+
+Limpieza: Al alcanzar el EOF, la función no debe mantener ninguna memoria asignada mediante malloc, a excepción de la línea que se devuelve al usuario.
+
+Uso iterativo: La llamada sucesiva a get_next_line dentro de un bucle debe permitir leer el contenido disponible en el descriptor de archivo línea a línea hasta el final, independientemente del tamaño del texto o de la longitud de las líneas.
+
+Compatibilidad: La función debe comportarse correctamente al leer desde un archivo, desde la entrada estándar (stdin), redirecciones, etc.
+
+Supuestos: * No se realizarán llamadas a otras funciones sobre el mismo fd entre dos llamadas consecutivas a get_next_line.
+
+El comportamiento de get_next_line es indefinido si se intenta leer de un archivo binario.
+
