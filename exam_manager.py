@@ -427,6 +427,36 @@ def cmd_reset():
     os.makedirs(dest)
     print(green(f"  Directorio reiniciado: {dest}/"))
 
+def cmd_cancel():
+    """Elimina todo lo generado por start: rendu, state y tmp."""
+    state = load_state()
+    if not state:
+        print(red("No hay ejercicio activo. Nada que cancelar."))
+        return
+
+    ex   = state["ex"]
+    dest = os.path.join(RENDU_DIR, ex)
+
+    sep = red("─" * 50)
+    print("\n" + sep)
+    print(red(f"  ✗ Cancelando ejercicio: ") + bold(ex))
+
+    if os.path.exists(dest):
+        shutil.rmtree(dest)
+        print(red(f"  ✗ Eliminado: {dest}/"))
+
+    if os.path.exists(STATE_FILE):
+        os.remove(STATE_FILE)
+        print(red(f"  ✗ Estado eliminado"))
+
+    if os.path.exists(TMP_DIR):
+        shutil.rmtree(TMP_DIR)
+        print(red(f"  ✗ Temporales eliminados"))
+
+    print(sep)
+    print(yellow("\n  Puedes lanzar 'start' para comenzar un nuevo ejercicio.\n"))
+
+
 # ─── ENTRY POINT ──────────────────────────────────────────────────────────────
 
 COMMANDS = {
@@ -434,6 +464,7 @@ COMMANDS = {
     "grade":  cmd_grade,
     "status": cmd_status,
     "reset":  cmd_reset,
+    "cancel": cmd_cancel,
 }
 
 def usage():
@@ -445,6 +476,7 @@ def usage():
             "grade":  "Corrige el ejercicio actual",
             "status": "Muestra el estado del ejercicio activo",
             "reset":  "Limpia el rendu sin cambiar de ejercicio",
+            "cancel": "Cancela el ejercicio activo y borra todo",
         }
         print(f"  python exam_manager.py {cmd:<8} — {descs[cmd]}")
     print()
