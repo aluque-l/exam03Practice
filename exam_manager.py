@@ -146,14 +146,26 @@ def tmp(name):
     return os.path.join(TMP_DIR, name)
 
 def load_state():
+    """Devuelve dict {ex, graded} o None si no hay estado."""
     if not os.path.exists(STATE_FILE):
         return None
     with open(STATE_FILE) as f:
-        return f.read().strip()
+        try:
+            return json.load(f)
+        except (json.JSONDecodeError, ValueError):
+            # Compatibilidad con formato antiguo (texto plano)
+            raw = f.read().strip()
+            return {"ex": raw, "graded": False} if raw else None
 
-def save_state(ex):
+def save_state(ex, graded=False):
     with open(STATE_FILE, "w") as f:
-        f.write(ex)
+        json.dump({"ex": ex, "graded": graded}, f)
+
+def mark_graded():
+    """Marca el ejercicio actual como superado."""
+    state = load_state()
+    if state:
+        save_state(state["ex"], graded=True)
 
 def check_valgrind():
     return shutil.which("valgrind") is not None
@@ -321,13 +333,17 @@ def grade_program(conf, user_src, ref_src):
 # ─── COMANDOS PRINCIPALES ─────────────────────────────────────────────────────
 
 def cmd_status():
-    ex = load_state()
-    if not ex:
+    state = load_state()
+    if not state:
         print(yellow("No hay ejercicio activo. Usa: python exam_manager.py start"))
         return
-    conf = EXAMS[ex]
-    dest = os.path.join(RENDU_DIR, ex)
+    ex     = state["ex"]
+    graded = state.get("graded", False)
+    conf   = EXAMS.get(ex, {})
+    dest   = os.path.join(RENDU_DIR, ex)
+    estado = green("✓ SUPERADO") if graded else yellow("⏳ pendiente de grade")
     print(f"\n  Ejercicio activo : {bold(ex)}")
+    print(f"  Estado           : {estado}")
     print(f"  Entregar en      : {dest}/")
     print(f"  Archivos pedidos : {', '.join(conf['files'])}")
     # Mostrar qué archivos ya existen
@@ -339,11 +355,12 @@ def cmd_status():
 
 def cmd_grade():
     ensure_dirs()
-    ex = load_state()
-    if not ex:
+    state = load_state()
+    if not state:
         print(red("No hay ejercicio activo. Usa: python exam_manager.py start"))
         return
 
+    ex       = state["ex"]
     conf     = EXAMS[ex]
     ref_file = conf.get("ref_file", f"{ex}.c")
     ref_src  = os.path.join(SOLUTIONS_DIR, ref_file)
@@ -374,6 +391,7 @@ def cmd_grade():
     if ok:
         print(green(f"  ✓ SUCCESS — {ex} superado en {elapsed:.1f}s"))
         print(f"{blue('─' * 50)}\n")
+        mark_graded()
         cmd_setup()
     else:
         print(red(f"  ✗ FAILED — revisa los errores anteriores"))
@@ -387,11 +405,23 @@ def cmd_setup(specific=None):
         print(f"Disponibles: {', '.join(EXAMS.keys())}")
         return
 
+    # Bloquear si hay ejercicio activo que no se ha superado con grade
+    state = load_state()
+    if state and not state.get("graded", False):
+        active_ex = state["ex"]
+        sep = yellow("─" * 50)
+        print("\n" + sep)
+        print(yellow("  ⚠ Ejercicio activo sin superar: ") + bold(active_ex))
+        print(yellow("  Debes pasarlo con 'grade' antes de continuar."))
+        print(yellow("  Si quieres cancelarlo todo: 'cancel'"))
+        print(sep + "\n")
+        return
+
     ex   = specific or random.choice(list(EXAMS.keys()))
     conf = EXAMS[ex]
     dest = os.path.join(RENDU_DIR, ex)
 
-    save_state(ex)
+    save_state(ex, graded=False)
 
     if os.path.exists(dest):
         shutil.rmtree(dest)
@@ -416,16 +446,19 @@ def cmd_setup(specific=None):
 
 def cmd_reset():
     """Regenera el directorio de entrega sin cambiar de ejercicio."""
-    ex = load_state()
-    if not ex:
+    state = load_state()
+    if not state:
         print(red("No hay ejercicio activo. Usa: python exam_manager.py start"))
         return
+    ex   = state["ex"]
     conf = EXAMS[ex]
     dest = os.path.join(RENDU_DIR, ex)
     if os.path.exists(dest):
         shutil.rmtree(dest)
     os.makedirs(dest)
+    save_state(ex, graded=False)
     print(green(f"  Directorio reiniciado: {dest}/"))
+    print(yellow("  Estado de grade reiniciado. Deberás superar el ejercicio de nuevo."))
 
 def cmd_cancel():
     """Elimina todo lo generado por start: rendu, state y tmp."""
