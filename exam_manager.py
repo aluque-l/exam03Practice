@@ -132,6 +132,129 @@ EXAMS = {
             {"args": [")))"],         "desc": "Solo cierra"},
         ],
     },
+    "ft_scanf": {
+        "files":      ["ft_scanf.c"],
+        "ref_file":   "scanf.c",
+        "is_program": False,
+        "is_scanf":   True,
+        # Cada test define:
+        #   format → string de formato pasado a ft_scanf
+        #   stdin  → input que leerá ft_scanf
+        #   desc   → descripción del test
+        #   vars   → lista de {type, name}
+        #            tipos: "int", "char", "str" (char[256])
+        "tests": [
+            # ── %c básico ────────────────────────────────────────────────────
+            {"desc": "%c lee un carácter",
+             "format": "%c", "stdin": "A\n",
+             "vars": [{"type": "char", "name": "c"}]},
+            {"desc": "%c no salta espacios",
+             "format": "%c", "stdin": " A\n",
+             "vars": [{"type": "char", "name": "c"}]},
+            {"desc": "%c lee espacio como carácter",
+             "format": "%c", "stdin": "  \n",
+             "vars": [{"type": "char", "name": "c"}]},
+            {"desc": "dos %c consecutivos",
+             "format": "%c%c", "stdin": "AB\n",
+             "vars": [{"type": "char", "name": "c1"}, {"type": "char", "name": "c2"}]},
+            {"desc": "%c en EOF devuelve EOF",
+             "format": "%c", "stdin": "",
+             "vars": [{"type": "char", "name": "c"}]},
+            # ── %d básico ────────────────────────────────────────────────────
+            {"desc": "%d entero positivo",
+             "format": "%d", "stdin": "42\n",
+             "vars": [{"type": "int", "name": "n"}]},
+            {"desc": "%d entero negativo",
+             "format": "%d", "stdin": "-7\n",
+             "vars": [{"type": "int", "name": "n"}]},
+            {"desc": "%d con signo +",
+             "format": "%d", "stdin": "+15\n",
+             "vars": [{"type": "int", "name": "n"}]},
+            {"desc": "%d salta espacios previos",
+             "format": "%d", "stdin": "   99\n",
+             "vars": [{"type": "int", "name": "n"}]},
+            {"desc": "%d cero",
+             "format": "%d", "stdin": "0\n",
+             "vars": [{"type": "int", "name": "n"}]},
+            {"desc": "%d falla con letra → retorna 0",
+             "format": "%d", "stdin": "abc\n",
+             "vars": [{"type": "int", "name": "n"}]},
+            {"desc": "%d número seguido de letra",
+             "format": "%d", "stdin": "42abc\n",
+             "vars": [{"type": "int", "name": "n"}]},
+            {"desc": "%d en EOF devuelve EOF",
+             "format": "%d", "stdin": "",
+             "vars": [{"type": "int", "name": "n"}]},
+            # ── %s básico ────────────────────────────────────────────────────
+            {"desc": "%s palabra simple",
+             "format": "%s", "stdin": "hola\n",
+             "vars": [{"type": "str", "name": "s"}]},
+            {"desc": "%s salta espacios previos",
+             "format": "%s", "stdin": "   mundo\n",
+             "vars": [{"type": "str", "name": "s"}]},
+            {"desc": "%s para en espacio",
+             "format": "%s", "stdin": "hola mundo\n",
+             "vars": [{"type": "str", "name": "s"}]},
+            {"desc": "%s en EOF devuelve EOF",
+             "format": "%s", "stdin": "",
+             "vars": [{"type": "str", "name": "s"}]},
+            {"desc": "%s solo espacios devuelve 0",
+             "format": "%s", "stdin": "   ",
+             "vars": [{"type": "str", "name": "s"}]},
+            # ── combinaciones ────────────────────────────────────────────────
+            {"desc": "%d %s combinados",
+             "format": "%d %s", "stdin": "42 hola\n",
+             "vars": [{"type": "int", "name": "n"}, {"type": "str", "name": "s"}]},
+            {"desc": "%s %d combinados",
+             "format": "%s %d", "stdin": "hola 42\n",
+             "vars": [{"type": "str", "name": "s"}, {"type": "int", "name": "n"}]},
+            {"desc": "%d %d dos enteros",
+             "format": "%d %d", "stdin": "10 20\n",
+             "vars": [{"type": "int", "name": "a"}, {"type": "int", "name": "b"}]},
+            {"desc": "%c %d carácter y entero",
+             "format": "%c %d", "stdin": "A 99\n",
+             "vars": [{"type": "char", "name": "c"}, {"type": "int", "name": "n"}]},
+            {"desc": "%d %c entero y carácter",
+             "format": "%d %c", "stdin": "5 X\n",
+             "vars": [{"type": "int", "name": "n"}, {"type": "char", "name": "c"}]},
+            {"desc": "%s %s dos palabras",
+             "format": "%s %s", "stdin": "foo bar\n",
+             "vars": [{"type": "str", "name": "a"}, {"type": "str", "name": "b"}]},
+            {"desc": "%d %s %c tres conversiones",
+             "format": "%d %s %c", "stdin": "7 test Z\n",
+             "vars": [{"type": "int",  "name": "n"},
+                      {"type": "str",  "name": "s"},
+                      {"type": "char", "name": "c"}]},
+            # ── literales en formato ──────────────────────────────────────────
+            {"desc": "literal entre conversiones",
+             "format": "%d-%d", "stdin": "3-7\n",
+             "vars": [{"type": "int", "name": "a"}, {"type": "int", "name": "b"}]},
+            {"desc": "literal no coincide → para",
+             "format": "%d-%d", "stdin": "3x7\n",
+             "vars": [{"type": "int", "name": "a"}, {"type": "int", "name": "b"}]},
+            # ── segunda conversión falla ──────────────────────────────────────
+            {"desc": "primera OK segunda falla → retorna 1",
+             "format": "%d %d", "stdin": "42 abc\n",
+             "vars": [{"type": "int", "name": "a"}, {"type": "int", "name": "b"}]},
+            {"desc": "primera falla → retorna 0",
+             "format": "%d %s", "stdin": "abc hola\n",
+             "vars": [{"type": "int", "name": "n"}, {"type": "str", "name": "s"}]},
+            # ── espacios en formato ───────────────────────────────────────────
+            {"desc": "espacio en formato consume múltiples espacios",
+             "format": "%d %d", "stdin": "1    2\n",
+             "vars": [{"type": "int", "name": "a"}, {"type": "int", "name": "b"}]},
+            {"desc": "espacio en formato consume tabs",
+             "format": "%d %d", "stdin": "1\t2\n",
+             "vars": [{"type": "int", "name": "a"}, {"type": "int", "name": "b"}]},
+            # ── valores extremos ─────────────────────────────────────────────
+            {"desc": "%d INT_MAX",
+             "format": "%d", "stdin": "2147483647\n",
+             "vars": [{"type": "int", "name": "n"}]},
+            {"desc": "%d número grande negativo",
+             "format": "%d", "stdin": "-2147483648\n",
+             "vars": [{"type": "int", "name": "n"}]},
+        ],
+    },
 }
 
 # ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -330,6 +453,97 @@ def grade_program(conf, user_src, ref_src):
 
     return all_ok
 
+def grade_scanf(conf, user_src, ref_src):
+    """
+    Corrección especial para ft_scanf.
+    Por cada test genera un main.c que:
+      1. Llama a ft_scanf con el formato y variables del test
+      2. Imprime ret= + los valores capturados
+    Compara contra la misma lógica con scanf del sistema (o ref_src si existe).
+    """
+
+    def type_decl(v):
+        t, n = v["type"], v["name"]
+        if t == "int":  return f"    int {n} = 0;"
+        if t == "char": return f"    char {n} = 0;"
+        if t == "str":  return f'    char {n}[256]; {n}[0] = \'\\0\';'
+        return ""
+
+    def print_stmt(v):
+        t, n = v["type"], v["name"]
+        if t == "int":  return f'    printf(" {n}=%d", {n});'
+        # char como entero para detectar diferencias en no-imprimibles
+        if t == "char": return f'    printf(" {n}=%d", (int)(unsigned char){n});'
+        if t == "str":  return f'    printf(" {n}=%s", {n});'
+        return ""
+
+    def make_main(fmt, variables, func_name):
+        decls  = "\n".join(type_decl(v) for v in variables)
+        args   = ", ".join(f"&{v['name']}" for v in variables)
+        prints = "\n".join(print_stmt(v) for v in variables)
+        fmt_e  = fmt.replace('\\', '\\\\').replace('"', '\\"')
+        return (
+            '#include <stdio.h>\n'
+            '#include <stdarg.h>\n'
+            '#include <ctype.h>\n'
+            f'int {func_name}(const char *, ...);\n'
+            'int main(void) {\n'
+            f'{decls}\n'
+            f'    int ret = {func_name}("{fmt_e}", {args});\n'
+            '    printf("ret=%d", ret);\n'
+            f'{prints}\n'
+            '    printf("\\n");\n'
+            '    return 0;\n'
+            '}\n'
+        )
+
+    ref_available = os.path.exists(ref_src)
+    all_ok = True
+
+    for t in conf["tests"]:
+        desc      = t["desc"]
+        fmt       = t["format"]
+        sin       = t["stdin"]
+        variables = t["vars"]
+
+        # ── binario usuario ───────────────────────────────────────────────────
+        u_main = tmp("scanf_u_main.c")
+        with open(u_main, "w") as f:
+            f.write(make_main(fmt, variables, "ft_scanf"))
+
+        if not compile_src([user_src, u_main], tmp("scanf_u.out")):
+            return False
+        u_out, _, _ = run([tmp("scanf_u.out")], sin)
+
+        # ── binario referencia ────────────────────────────────────────────────
+        r_main = tmp("scanf_r_main.c")
+        if ref_available:
+            with open(r_main, "w") as f:
+                f.write(make_main(fmt, variables, "ft_scanf"))
+            r_ok = compile_src([ref_src, r_main], tmp("scanf_r.out"))
+        else:
+            # Sin ref_src: comparar contra scanf real del sistema
+            with open(r_main, "w") as f:
+                f.write(make_main(fmt, variables, "scanf"))
+            r_ok = compile_src([r_main], tmp("scanf_r.out"))
+
+        if not r_ok:
+            print(yellow(f"  ⚠ [{desc}] referencia no compiló, saltando"))
+            continue
+
+        r_out, _, _ = run([tmp("scanf_r.out")], sin)
+
+        if u_out.strip() != r_out.strip():
+            print(red(f"  ✗ FAIL [{desc}]"))
+            print_diff(r_out.strip(), u_out.strip())
+            all_ok = False
+            continue
+
+        print(green(f"  ✓ [{desc}]"))
+
+    return all_ok
+
+
 # ─── COMANDOS PRINCIPALES ─────────────────────────────────────────────────────
 
 def cmd_status():
@@ -381,7 +595,9 @@ def cmd_grade():
 
     t0 = time.time()
 
-    if not conf.get("is_program"):
+    if conf.get("is_scanf"):
+        ok = grade_scanf(conf, user_src, ref_src)
+    elif not conf.get("is_program"):
         ok = grade_gnl(conf, user_src, ref_src)
     else:
         ok = grade_program(conf, user_src, ref_src)
