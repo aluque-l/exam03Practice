@@ -13,7 +13,7 @@ alias exam_reset="python3 $EXAM_PATH reset"
 alias exam_cancel="python3 $EXAM_PATH cancel"
 
 2. open the repository directory.
-3. execute exam_start (if you want to practice an specific subject, execute exam_start 'name_of_subject').
+3. execute exam_start (if you want to practice an specific subject, execute exam_start 'name_of_subject', if you want to practice a certain level, execute exam_start lvl1 or exam_start lvl2).
 4. a random ( or not so random ;) ) subject will appear at the "rendu" directory.
 5. you can check if the program detect your *.c file by executing exam_status.
 6. When you are finished, grade your solution by executing exam_grade.
@@ -21,6 +21,6 @@ If you passed, a SUCCESS message will appear and another subject will be generat
 Otherwise, a FAIL message will appear, and you will be stuck some more time with the same subject.
 7. You can remove everything you have done in your actual subject by executing exam_reset.
 8. You cant start another subject before you finish the one you are currently working on, unless you execute exam_cancel.
-exam_cancel will remove everything, so you can execute start again.
+exam_cancel will remove everything, so you can execute exam_start again.
 
 PD: This is a practicing tool, im pretty sure it can be done better, but it does its job decently. Any help is welcomed (👍🏻ᴗ _ᴗ)👍🏻

@@ -257,6 +257,13 @@ EXAMS = {
     },
 }
 
+# ─── NIVELES ──────────────────────────────────────────────────────────────────
+
+LEVELS = {
+    "lvl1": ["broken_GNL", "filter", "ft_scanf"],
+    "lvl2": ["n_queens", "permutations", "powerset", "rip"],
+}
+
 # ─── HELPERS ──────────────────────────────────────────────────────────────────
 
 def ensure_dirs():
@@ -280,15 +287,15 @@ def load_state():
             raw = f.read().strip()
             return {"ex": raw, "graded": False} if raw else None
 
-def save_state(ex, graded=False):
+def save_state(ex, graded=False, level=None):
     with open(STATE_FILE, "w") as f:
-        json.dump({"ex": ex, "graded": graded}, f)
+        json.dump({"ex": ex, "graded": graded, "level": level}, f)
 
 def mark_graded():
     """Marca el ejercicio actual como superado."""
     state = load_state()
     if state:
-        save_state(state["ex"], graded=True)
+        save_state(state["ex"], graded=True, level=state.get("level"))
 
 def check_valgrind():
     return shutil.which("valgrind") is not None
@@ -549,14 +556,17 @@ def grade_scanf(conf, user_src, ref_src):
 def cmd_status():
     state = load_state()
     if not state:
-        print(yellow("No hay ejercicio activo. Usa: python exam_manager.py start"))
+        print(yellow("No hay ejercicio activo. Usa: python exam_manager.py start [lvl1|lvl2]"))
         return
     ex     = state["ex"]
     graded = state.get("graded", False)
+    level  = state.get("level")
     conf   = EXAMS.get(ex, {})
     dest   = os.path.join(RENDU_DIR, ex)
     estado = green("✓ SUPERADO") if graded else yellow("⏳ pendiente de grade")
     print(f"\n  Ejercicio activo : {bold(ex)}")
+    if level:
+        print(f"  Nivel            : {purple(level.upper())}")
     print(f"  Estado           : {estado}")
     print(f"  Entregar en      : {dest}/")
     print(f"  Archivos pedidos : {', '.join(conf['files'])}")
@@ -608,18 +618,24 @@ def cmd_grade():
         print(green(f"  ✓ SUCCESS — {ex} superado en {elapsed:.1f}s"))
         print(f"{blue('─' * 50)}\n")
         mark_graded()
-        cmd_setup()
+        cmd_setup(level=state.get("level"))
     else:
         print(red(f"  ✗ FAILED — revisa los errores anteriores"))
         print(f"{blue('─' * 50)}\n")
 
 
-def cmd_setup(specific=None):
+def cmd_setup(specific=None, level=None):
     ensure_dirs()
     if specific and specific not in EXAMS:
         print(red(f"Ejercicio desconocido: {specific}"))
         print(f"Disponibles: {', '.join(EXAMS.keys())}")
         return
+
+    # Determinar pool de ejercicios según nivel
+    if level and level in LEVELS:
+        pool = LEVELS[level]
+    else:
+        pool = list(EXAMS.keys())
 
     # Bloquear si hay ejercicio activo que no se ha superado con grade
     state = load_state()
@@ -633,11 +649,11 @@ def cmd_setup(specific=None):
         print(sep + "\n")
         return
 
-    ex   = specific or random.choice(list(EXAMS.keys()))
+    ex   = specific or random.choice(pool)
     conf = EXAMS[ex]
     dest = os.path.join(RENDU_DIR, ex)
 
-    save_state(ex, graded=False)
+    save_state(ex, graded=False, level=level)
 
     if os.path.exists(dest):
         shutil.rmtree(dest)
@@ -652,8 +668,9 @@ def cmd_setup(specific=None):
     else:
         subject_status = yellow(f"⚠ no encontrado en subjects/{ex}.txt")
 
+    level_tag = f" {purple('[' + level.upper() + ']')}" if level else ""
     print(f"\n{purple('─' * 50)}")
-    print(f"  {bold('NUEVO EJERCICIO:')} {purple(ex)}")
+    print(f"  {bold('NUEVO EJERCICIO:')}{level_tag} {purple(ex)}")
     print(f"  Entrega en      : {dest}/")
     print(f"  Archivos pedidos: {', '.join(conf['files'])}")
     print(f"  Subject         : {subject_status}")
@@ -719,15 +736,17 @@ COMMANDS = {
 def usage():
     print(f"\n{bold('exam_manager.py')} — Simulador Rank03 (42 School)")
     print("\nUso:")
-    for cmd, _ in COMMANDS.items():
-        descs = {
-            "start":  "Asigna un ejercicio aleatorio",
-            "grade":  "Corrige el ejercicio actual",
-            "status": "Muestra el estado del ejercicio activo",
-            "reset":  "Limpia el rendu sin cambiar de ejercicio",
-            "cancel": "Cancela el ejercicio activo y borra todo",
-        }
+    descs = {
+        "start":  "Asigna un ejercicio aleatorio (todos los niveles)",
+        "grade":  "Corrige el ejercicio actual",
+        "status": "Muestra el estado del ejercicio activo",
+        "reset":  "Limpia el rendu sin cambiar de ejercicio",
+        "cancel": "Cancela el ejercicio activo y borra todo",
+    }
+    for cmd in COMMANDS:
         print(f"  python exam_manager.py {cmd:<8} — {descs[cmd]}")
+    print(f"  python exam_manager.py {'start lvl1':<8} — Solo ejercicios de nivel 1 (broken_GNL, filter, ft_scanf)")
+    print(f"  python exam_manager.py {'start lvl2':<8} — Solo ejercicios de nivel 2 (nqueens, permutations, powerset, rip)")
     print()
 
 if __name__ == "__main__":
@@ -735,8 +754,15 @@ if __name__ == "__main__":
         usage()
         sys.exit(1)
 
-    # Opción: start <nombre> para elegir ejercicio concreto
-    if sys.argv[1] == "start" and len(sys.argv) == 3:
-        cmd_setup(specific=sys.argv[2])
+    if sys.argv[1] == "start":
+        if len(sys.argv) == 3:
+            arg = sys.argv[2]
+            if arg in LEVELS:
+                cmd_setup(level=arg)
+            else:
+                # Nombre de ejercicio concreto (comportamiento original)
+                cmd_setup(specific=arg)
+        else:
+            cmd_setup()
     else:
         COMMANDS[sys.argv[1]]()
