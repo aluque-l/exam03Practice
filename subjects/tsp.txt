@@ -1,0 +1,67 @@
+Nombre del ejercicio: tsp
+Archivos esperados: *.c *.h
+Funciones permitidas: write, sqrtf, getline, fseek, fscanf, ferror, feof,
+fabsf, memcpy, fprintf, fclose, malloc, calloc, realloc, free, fopen,
+errno, stderr, stdin, stdout
+-------------------------------------------------------
+
+La primera publicación que hace referencia a este problema como el "problema
+del viajante de comercio" se encuentra en el informe de 1949 de la corporación
+RAND escrito por Julia Robinson, "On the Hamiltonian game (a traveling salesman
+problem)."
+
+Así es como ella define el problema:
+
+"El propósito de esta nota es dar un método para resolver un problema
+relacionado con el problema del viajante de comercio. Parece útil ofrecer
+una descripción del problema original. Una formulación consiste en encontrar
+la ruta más corta para un vendedor que parte de Washington, visita todas las
+capitales de los estados y luego regresa a Washington.
+
+De forma más general, encontrar la CURVA CERRADA más corta que contenga n
+puntos dados en el plano."
+
+Por ejemplo, con el siguiente conjunto de ciudades:
+0, 0
+1, 0
+2, 0
+0, 1
+1, 1
+2, 1
+1, 2
+2, 2
+que se puede representar así:
++ + +
++ + +
+  + +
+el camino más corto es:
+ _____
+|__   |
+   |__|
+
+por lo tanto debes imprimir la longitud de este camino, que es:
+8.00
+
+Escribe un programa que lea un conjunto de coordenadas de ciudades con el
+formato '%f, %f\n' desde la entrada estándar e imprima la longitud del
+camino más corto posible que contenga todas esas ciudades con el formato
+'%.2f'.
+
+Tu programa no será probado con más de 11 ciudades.
+
+Encontrarás en este directorio un archivo tsp.c que contiene todas las partes
+aburridas del ejercicio, así como archivos de ejemplo para ayudarte a probar
+tu programa.
+
+Pista: para usar sqrtf, añade -lm al final de tu comando de compilación.
+
+Por ejemplo, esto debería funcionar:
+$> cat square.txt
+1, 1
+0, 1
+1, 0
+0, 0
+$> ./tsp < square.txt | cat -e
+4.00$
+
+Pista: para usar sqrtf, añade -lm al final de tu comando de compilación.

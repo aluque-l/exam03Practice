@@ -132,6 +132,32 @@ EXAMS = {
             {"args": [")))"],         "desc": "Solo cierra"},
         ],
     },
+    "tsp": {
+        "files":        ["tsp.c"],
+        "ref_file":     "tsp.c",
+        "is_program":   True,
+        "extra_flags":  ["-lm"],
+        "sort":         False,
+        "tests": [
+            # stdin → coordenadas de ciudades, expected_out → distancia exacta
+            {"stdin": "1, 1\n0, 1\n1, 0\n0, 0\n",
+             "expected": "4.00",   "desc": "Cuadrado (subject)"},
+            {"stdin": "0, 0\n1, 0\n2, 0\n0, 1\n1, 1\n2, 1\n1, 2\n2, 2\n",
+             "expected": "8.00",   "desc": "Grid 3x3 (subject)"},
+            {"stdin": "0, 0\n1, 0\n0, 1\n",
+             "expected": "3.41",   "desc": "Triángulo (3 ciudades)"},
+            {"stdin": "0, 0\n4, 0\n4, 3\n0, 3\n",
+             "expected": "14.00",  "desc": "Rectángulo 4x3"},
+            {"stdin": "0, 0\n",
+             "expected": "0.00",   "desc": "Una sola ciudad"},
+            {"stdin": "0, 0\n1, 0\n",
+             "expected": "2.00",   "desc": "Dos ciudades"},
+            {"stdin": "0, 0\n3, 0\n3, 4\n0, 4\n1, 2\n",
+             "expected": "14.47",  "desc": "5 ciudades con punto interior"},
+            {"stdin": "0, 0\n1, 0\n2, 0\n3, 0\n4, 0\n5, 0\n",
+             "expected": "10.00",  "desc": "6 ciudades en línea recta"},
+        ],
+    },
     "ft_scanf": {
         "files":      ["ft_scanf.c"],
         "ref_file":   "scanf.c",
@@ -261,7 +287,7 @@ EXAMS = {
 
 LEVELS = {
     "lvl1": ["broken_GNL", "filter", "ft_scanf"],
-    "lvl2": ["n_queens", "permutations", "powerset", "rip"],
+    "lvl2": ["n_queens", "permutations", "powerset", "rip", "tsp"],
 }
 
 # ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -318,8 +344,8 @@ def run(cmd, stdin_text="", timeout=15):
 
 def compile_src(sources, out, extra_flags=None):
     """Compila fuentes C. Devuelve True si OK."""
-    flags = ["-Wall", "-Wextra", "-Werror"] + (extra_flags or [])
-    cmd = ["gcc"] + flags + sources + ["-o", out]
+    flags = ["-Wall", "-Wextra", "-Werror"]
+    cmd = ["gcc"] + flags + sources + ["-o", out] + (extra_flags or [])
     _, stderr, code = run(cmd)
     if code != 0:
         print(red(f"  Error de compilación:\n{stderr}"))
@@ -422,10 +448,11 @@ def grade_program(conf, user_src, ref_src):
     all_ok  = True
 
     for t in conf["tests"]:
-        args  = t.get("args", [])
-        stdin = t.get("stdin", "")
-        desc  = t.get("desc", str(args))
+        args          = t.get("args", [])
+        stdin         = t.get("stdin", "")
+        desc          = t.get("desc", str(args))
         expected_exit = t.get("exit", 0)
+        expected_out  = t.get("expected", None)
 
         u_out, _, u_code = run([tmp("u.out")] + args, stdin)
 
@@ -438,18 +465,25 @@ def grade_program(conf, user_src, ref_src):
                 all_ok = False
             continue
 
-        if r_ok:
+        # Comparación contra valor esperado fijo (sin necesitar referencia)
+        if expected_out is not None:
+            u_norm = u_out.strip()
+            if u_norm != expected_out.strip():
+                print(red(f"  ✗ FAIL [{desc}]"))
+                print_diff(expected_out.strip(), u_norm)
+                all_ok = False
+                continue
+        elif r_ok:
             r_out, _, _ = run([tmp("r.out")] + args, stdin)
             u_norm = normalize(u_out, do_sort)
             r_norm = normalize(r_out, do_sort)
-
             if u_norm != r_norm:
                 print(red(f"  ✗ FAIL [{desc}]"))
                 print_diff(r_norm, u_norm)
                 all_ok = False
                 continue
 
-        # Valgrind solo si el programa tiene stdin o es determinista
+        # Test de memoria
         ok_mem, mem_log = check_memory([tmp("u.out")] + args, stdin)
         if not ok_mem:
             print(red(f"  ✗ LEAKS [{desc}]\n{mem_log}"))
@@ -459,6 +493,7 @@ def grade_program(conf, user_src, ref_src):
         print(green(f"  ✓ [{desc}]"))
 
     return all_ok
+
 
 def grade_scanf(conf, user_src, ref_src):
     """
