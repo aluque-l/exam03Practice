@@ -4,13 +4,13 @@ User guide:
 
 1. edit /home/"username"/.bashrc or /home/"username"/.zshrc (nano .bashrc or nano .zshrc), at the end of the file, add:
 
-EXAM_PATH = "exam_manager.py path route"
+$EXAM_PATH = "exam_manager.py path route"
 
-alias exam_start="python3 $EXAM_PATH start"
-alias exam_grade="python3 $EXAM_PATH grade"
-alias exam_status="python3 $EXAM_PATH status"
-alias exam_reset="python3 $EXAM_PATH reset"
-alias exam_cancel="python3 $EXAM_PATH cancel"
+alias exam_start="python3 $EXAM_PATH exam_manager.py start"
+alias exam_grade="python3 $EXAM_PATH exam_manager.py grade"
+alias exam_status="python3 $EXAM_PATH exam_manager.py status"
+alias exam_reset="python3 $EXAM_PATH exam_manager.py reset"
+alias exam_cancel="python3 $EXAM_PATH exam_manager.py cancel"
 
 2. open the repository directory.
 3. execute exam_start (if you want to practice an specific subject, execute exam_start 'name_of_subject', if you want to practice a certain level, execute exam_start lvl1 or exam_start lvl2).
