@@ -51,7 +51,13 @@ char	*get_next_line(int fd)
 		{
 			end = read(fd, buf, BUFFER_SIZE);
 			start = 0;
-			if (end <= 0)
+			if (end < 0)
+			{
+				start = 0;
+				end = 0;
+				return (free(line), NULL);
+			}
+			if (end == 0)
 				break ;
 		}
 		i = start;
@@ -60,7 +66,8 @@ char	*get_next_line(int fd)
 		if (i < end)
 		{
 			line = append(line, buf + start, i - start + 1);
-			start = i + 1;
+			if (line)
+				start = i + 1;
 			return (line);
 		}
 		line = append(line, buf + start, end - start);
@@ -69,7 +76,7 @@ char	*get_next_line(int fd)
 		start = 0;
 		end = 0;
 	}
-	if (line && line[0])
+	if (line && *line)
 		return (line);
 	free(line);
 	return (NULL);
