@@ -1,83 +1,132 @@
+#ifndef BUFFER_SIZE
+# define BUFFER_SIZE 10
+#endif
+
 #include <unistd.h>
 #include <stdlib.h>
 
-#ifndef BUFFER_SIZE
-# define BUFFER_SIZE 42
-#endif
-
-static char	*append(char *line, char *buf, int n)
+char *ft_strchr(char *s, int c)
 {
-	char	*tmp;
-	int		len;
-	int		i;
-
-	len = 0;
-	while (line && line[len])
-		len++;
-	tmp = malloc(len + n + 1);
-	if (!tmp)
-		return (free(line), NULL);
-	i = 0;
-	while (i < len)
-	{
-		tmp[i] = line[i];
+	int i = 0;
+	if (!s)
+		return NULL;
+	while (s[i] && s[i] != (char)c)
 		i++;
-	}
-	i = 0;
-	while (i < n)
-	{
-		tmp[len + i] = buf[i];
-		i++;
-	}
-	tmp[len + n] = '\0';
-	free(line);
-	return (tmp);
+	if (s[i] == (char)c)
+		return s + i;
+	else
+		return NULL;
 }
 
-char	*get_next_line(int fd)
+void *ft_memcpy(void *dest, const void *src, size_t n)
 {
-	static char	buf[BUFFER_SIZE];
-	static int	start = 0;
-	static int	end = 0;
-	char		*line;
-	int			i;
+	size_t i = 0;
+	if (!dest && !src)
+		return NULL;
+	while (i < n)
+	{
+		((char *)dest)[i] = ((char *)src)[i];
+		i++;
+	}
+	return dest;
+}
+
+size_t ft_strlen(char *s)
+{
+	size_t res = 0;
+	if (!s)
+		return 0;
+	while (*s)
+	{
+		s++;
+		res++;
+	}
+	return res;
+}
+
+int str_append_mem(char **s1, char *s2, size_t size2)
+{
+	size_t size1 = ft_strlen(*s1);
+	char *tmp = malloc(size2 + size1 + 1);
+	if (!tmp)
+		return 0;
+	if (*s1)
+		ft_memcpy(tmp, *s1, size1);
+	ft_memcpy(tmp + size1, s2, size2);
+	tmp[size1 + size2] = '\0';
+	if (*s1)
+		free(*s1);
+	*s1 = tmp;
+	return 1;
+}
+
+int str_append_str(char **s1, char *s2)
+{
+	return str_append_mem(s1, s2, ft_strlen(s2));
+}
+
+void *ft_memmove(void *dest, const void *src, size_t n)
+{
+	char *d = (char *)dest;
+	const char *s = (const char *)src;
+
+	if (!dest && !src)
+		return NULL;
+	if (d > s)
+	{
+		while (n--)
+			d[n] = s[n];
+	}
+	else
+	{
+		size_t i = 0;
+		while (i < n)
+		{
+			d[i] = s[i];
+			i++;
+		}
+	}
+	return dest;
+}
+
+char *get_next_line(int fd)
+{
+	static char b[BUFFER_SIZE + 1] = "";
+	char *ret = NULL;
+	char *tmp;
+	int read_ret;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
-	line = NULL;
-	while (1)
+		return NULL;
+	while (!(tmp = ft_strchr(b, '\n')))
 	{
-		if (start >= end)
+		if (*b)
 		{
-			end = read(fd, buf, BUFFER_SIZE);
-			start = 0;
-			if (end < 0)
-			{
-				start = 0;
-				end = 0;
-				return (free(line), NULL);
-			}
-			if (end == 0)
-				break ;
+			if (!str_append_str(&ret, b))
+				return NULL;
 		}
-		i = start;
-		while (i < end && buf[i] != '\n')
-			i++;
-		if (i < end)
+		read_ret = read(fd, b, BUFFER_SIZE);
+		if (read_ret == -1)
 		{
-			line = append(line, buf + start, i - start + 1);
-			if (line)
-				start = i + 1;
-			return (line);
+			free(ret);
+			b[0] = '\0';
+			return NULL;		
 		}
-		line = append(line, buf + start, end - start);
-		if (!line)
-			return (NULL);
-		start = 0;
-		end = 0;
+		if (read_ret == 0)
+		{
+			b[0] = '\0';
+			return ret;
+		}
+		b[read_ret] = '\0';
 	}
-	if (line && *line)
-		return (line);
-	free(line);
-	return (NULL);
+
+	if (!str_append_mem(&ret, b, tmp - b + 1))
+	{
+		free(ret);
+		return NULL;
+	}
+
+	ft_memmove(b, tmp + 1, ft_strlen(tmp + 1) + 1);
+
+	return ret;
 }

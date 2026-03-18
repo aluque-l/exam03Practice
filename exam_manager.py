@@ -695,13 +695,28 @@ def cmd_setup(specific=None, level=None):
     os.makedirs(dest)
 
     # Copia el subject.txt en el directorio de entrega si existe
-    subject_src = os.path.join(SUBJECTS_DIR, f"{ex}.txt")
+    # Primero intenta buscar en una carpeta específica del ejercicio (ej: subjects/broken_GNL/)
+    subject_src = os.path.join(SUBJECTS_DIR, ex, f"{ex}.txt")
+    if not os.path.exists(subject_src):
+        # Si no existe, busca en subjects/ directamente (ej: subjects/broken_GNL.txt)
+        subject_src = os.path.join(SUBJECTS_DIR, f"{ex}.txt")
+    
     subject_dst = os.path.join(dest, "subject.txt")
     if os.path.exists(subject_src):
         shutil.copy(subject_src, subject_dst)
         subject_status = green("✓ subject.txt copiado")
     else:
-        subject_status = yellow(f"⚠ no encontrado en subjects/{ex}.txt")
+        subject_status = yellow(f"⚠ no encontrado")
+    
+    # Para broken_GNL, copiar también get_next_line.c y get_next_line.h
+    if ex == "broken_GNL":
+        gnl_dir = os.path.join(SUBJECTS_DIR, "broken_GNL")
+        extra_files = ["get_next_line.c", "get_next_line.h"]
+        for file in extra_files:
+            src = os.path.join(gnl_dir, file)
+            dst = os.path.join(dest, file)
+            if os.path.exists(src):
+                shutil.copy(src, dst)
 
     level_tag = f" {purple('[' + level.upper() + ']')}" if level else ""
     print(f"\n{purple('─' * 50)}")
